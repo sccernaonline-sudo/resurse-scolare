@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Educație fizică – Modulul I</title>
+<style>
+:root{
+  --bg:#f4f7f2; --card:#ffffff; --ink:#1f2a24; --muted:#5d6b63;
+  --green:#2e8b57; --green-l:#e3f3ea; --orange:#e8772e; --orange-l:#fdeee3;
+  --red:#c8433a; --red-l:#fbe6e4; --blue:#2f6fb3; --blue-l:#e6eff9;
+  --line:#dfe6e1; --radius:14px;
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:18px;line-height:1.55}
+header{background:var(--green);color:#fff;padding:18px 20px}
+header h1{margin:0;font-size:1.5rem}
+header p{margin:4px 0 0;opacity:.9;font-size:1rem}
+.wrap{max-width:1000px;margin:0 auto;padding:20px 16px 60px}
+nav{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+nav button{border:2px solid var(--line);background:var(--card);border-radius:999px;padding:8px 14px;font-size:.95rem;cursor:pointer;color:var(--ink);font-weight:600}
+nav button.active{border-color:var(--green);background:var(--green-l)}
+nav button.done::after{content:" ✓";color:var(--green)}
+nav button.final{border-color:var(--orange)}
+nav button.final.active{background:var(--orange-l)}
+.card{background:var(--card);border-radius:var(--radius);padding:22px;box-shadow:0 2px 8px rgba(0,0,0,.05);margin-bottom:18px}
+h2{margin:0 0 6px;font-size:1.45rem;color:var(--green)}
+h3{margin:18px 0 8px;font-size:1.15rem}
+.lead{color:var(--muted);margin:0 0 14px}
+.info{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:12px 0}
+.info div{background:var(--green-l);border-radius:12px;padding:14px}
+.info div b{display:block;margin-bottom:4px}
+.tip{background:var(--blue-l);border-left:5px solid var(--blue);border-radius:10px;padding:12px 14px;margin:14px 0}
+.warn{background:var(--red-l);border-left:5px solid var(--red);border-radius:10px;padding:12px 14px;margin:14px 0}
+ul.check{padding-left:0;list-style:none}
+ul.check li{padding:6px 0 6px 30px;position:relative}
+ul.check li::before{content:"✔";position:absolute;left:4px;color:var(--green);font-weight:700}
+ul.cross li::before{content:"✘";color:var(--red)}
+ol.steps li{margin:4px 0}
+.btn{background:var(--green);color:#fff;border:0;border-radius:10px;padding:12px 20px;font-size:1rem;font-weight:700;cursor:pointer}
+.btn.orange{background:var(--orange)}
+.btn.ghost{background:transparent;color:var(--green);border:2px solid var(--green)}
+.btn:disabled{opacity:.45;cursor:default}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:12px}
+.quiz .q{font-weight:700;margin:16px 0 8px}
+.opt{display:block;width:100%;text-align:left;border:2px solid var(--line);background:#fff;border-radius:10px;padding:10px 14px;margin:6px 0;font-size:1rem;cursor:pointer;color:var(--ink)}
+.opt:hover:not(:disabled){border-color:var(--green)}
+.opt.sel{border-color:var(--blue);background:var(--blue-l)}
+.opt.ok{border-color:var(--green);background:var(--green-l)}
+.opt.bad{border-color:var(--red);background:var(--red-l)}
+.opt:disabled{cursor:default}
+.expl{margin:6px 0 4px;padding:8px 12px;border-radius:8px;font-size:.95rem}
+.expl.ok{background:var(--green-l)}
+.expl.bad{background:var(--red-l)}
+.score{font-size:1.15rem;font-weight:700;margin-top:14px}
+.timer{font-size:3.2rem;font-weight:800;color:var(--orange);text-align:center;margin:10px 0}
+input[type=number],input[type=text]{font-size:1.1rem;padding:9px 12px;border:2px solid var(--line);border-radius:10px;width:200px}
+.result{font-size:1.1rem;margin-top:10px;padding:12px;border-radius:10px;background:var(--orange-l)}
+.big{font-size:4rem;font-weight:800;color:var(--orange);text-align:center;line-height:1}
+.progress{height:10px;background:var(--line);border-radius:999px;overflow:hidden;margin:10px 0 16px}
+.progress div{height:100%;background:var(--orange);width:0;transition:width .3s}
+.home-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-top:14px}
+.home-grid button{border:2px solid var(--line);background:#fff;border-radius:12px;padding:16px;font-size:1rem;cursor:pointer;text-align:left;color:var(--ink)}
+.home-grid button:hover{border-color:var(--green)}
+.home-grid span{display:block;font-size:2rem}
+.hidden{display:none}
+.review li{margin:8px 0}
+@media print{nav,header .noprint,.noprint{display:none!important}body{background:#fff}.card{box-shadow:none}}
+</style>
+</head>
+<body>
+<header>
+  <h1>🏃 Educație fizică</h1>
+  <p>Modulul I: Siguranță, încălzire, rezistență, puls, igienă, călire</p>
+</header>
+<div class="wrap">
+  <nav id="nav"></nav>
+  <main id="main"></main>
+</div>
+
+<script>
+/* ===================== CONȚINUT ===================== */
+const chapters = [
+{
+  id:"siguranta", icon:"🛡️", title:"1. Siguranța",
+  lead:"La ora de educație fizică ne mișcăm mult și repede. Câteva reguli simple ne feresc de accidentări.",
+  html:`
+  <h3>Regulile de siguranță</h3>
+  <ul class="check">
+    <li>Nu port bijuterii: lanțuri, inele, brățări, cercei mari, ceas.</li>
+    <li>Nu țin obiecte în buzunare (telefon, chei, pixuri).</li>
+    <li>Am șireturile legate și încălțăminte sport.</li>
+    <li>Încep exercițiul doar la semnalul profesorului.</li>
+    <li>Alerg doar în sensul stabilit și nu îmi împing colegii.</li>
+    <li>Folosesc mingile și materialele doar cu permisiunea profesorului.</li>
+    <li>Anunț imediat profesorul dacă mă doare ceva sau nu mă simt bine.</li>
+  </ul>
+  <div class="warn"><b>Oprește-te imediat și anunță profesorul</b> dacă simți: durere în piept, amețeală, respirație foarte grea, inima bate „nebunește”, greață.</div>
+  <div class="tip"><b>De reținut:</b> regulile nu sunt ca să ne încurce, ci ca toată lumea să termine ora sănătoasă.</div>`,
+  quiz:[
+    {q:"Ce faci cu lănțișorul înainte de ora de educație fizică?", o:["Îl las la gât, e mic","Îl scot și îl las în siguranță","Îl bag în buzunar"], c:1, e:"Bijuteriile se scot. În buzunar nu e bine nici el: obiectele din buzunare pot răni."},
+    {q:"Când începi exercițiul?", o:["Când sunt gata eu","Când încep colegii","La semnalul profesorului"], c:2, e:"Toți pornesc la semnal, ca să nu se ciocnească sau să se lovească."},
+    {q:"În timpul alergării simți o durere în piept. Ce faci?", o:["Mă opresc și anunț profesorul","Continui, trece","Alerg mai încet și nu spun nimic"], c:0, e:"Durerea în piept este un semnal de oprire imediată. Profesorul trebuie să știe."}
+  ]
+},
+{
+  id:"incalzire", icon:"🔥", title:"2. Încălzirea",
+  lead:"Încălzirea este partea de la începutul orei care pregătește corpul pentru efort.",
+  html:`
+  <h3>De ce facem încălzire?</h3>
+  <div class="info">
+    <div><b>💪 Mușchii</b>încălziți sunt mai elastici și se întind în siguranță, fără să se rănească sau să se rupă în timpul efortului.</div>
+    <div><b>🦵 Articulațiile</b>(genunchi, glezne, umeri) se mișcă mai ușor.</div>
+    <div><b>❤️ Inima și respirația</b>accelerează treptat, nu brusc.</div>
+    <div><b>🩹 Riscul de accidentare</b>(întinderi, entorse) scade.</div>
+  </div>
+  <h3>Cum se face?</h3>
+  <ol class="steps">
+    <li><b>Mers și alergare ușoară</b> – 2–3 minute, ca să ne încălzim.</li>
+    <li><b>Exerciții de la cap spre picioare:</b> rotiri ale capului, rotiri de umeri și brațe, rotiri de trunchi, rotiri din șold, genuflexiuni, fandări, rotiri din glezne.</li>
+    <li><b>Exerciții din alergare:</b> genunchii sus, călcâiele la șezută, joc de gleznă.</li>
+  </ol>
+  <div class="tip"><b>De reținut:</b> încălzirea durează cam 5–10 minute și se face <b>înainte</b> de efortul mare, nu după.</div>`,
+  quiz:[
+    {q:"De ce facem încălzirea?", o:["Ca să obosim înainte de joc","Ca să pregătim corpul pentru efort și să evităm accidentările","Doar pentru că așa cere profesorul"], c:1, e:"Încălzirea pregătește mușchii, articulațiile, inima și respirația pentru efort."},
+    {q:"Care dintre acestea este un exercițiu de încălzire?", o:["Sprint maxim din prima secundă","Rotiri de brațe","Statul pe bancă"], c:1, e:"Rotirile de brațe, de umeri, de trunchi sau din glezne sunt exerciții de încălzire."},
+    {q:"În ce ordine facem de obicei exercițiile de încălzire pe loc?", o:["De la cap spre picioare","La întâmplare","Doar picioarele"], c:0, e:"Ordinea „de sus în jos” ne ajută să nu uităm nicio parte a corpului."}
+  ]
+},
+{
+  id:"rezistenta", icon:"🏃", title:"3. Rezistența",
+  lead:"Rezistența este capacitatea organismului de a face un efort de lungă durată fără să obosească repede.",
+  html:`
+  <h3>Cum alergi corect 4 minute?</h3>
+  <div class="info">
+    <div><b>🐢 Pornești moderat</b>Nu în sprint! Cine pleacă prea repede obosește în primul minut.</div>
+    <div><b>⏱️ Păstrezi tempoul</b><i>Tempoul</i> este viteza cu care te deplasezi. Alergi într-un tempo constant, pe care îl poți ține până la final.</div>
+    <div><b>🌬️ Respiri ritmic</b>Inspiri pe nas și pe gură, expiri pe gură, fără să îți ții respirația.</div>
+    <div><b>🗣️ Testul vorbitului</b>Dacă poți spune câteva cuvinte în timp ce alergi, tempoul e bun.</div>
+  </div>
+  <h3>Ce este dozarea efortului?</h3>
+  <p><b>Dozarea efortului</b> înseamnă să înveți să-ți împarți energia inteligent, de la începutul până la sfârșitul unei activități fizice, astfel încât să nu rămâi „fără baterie” pe drum.</p>
+  <h3>Hai să înțelegem mai ușor</h3>
+  <div class="info">
+    <div style="background:var(--orange-l)"><b>🏎️ Mașina de curse și rezervorul de benzină</b>O mașină nu poate merge tot timpul cu pedala apăsată la podea. Consumă toată benzina în primii kilometri și motorul se încinge. Un șofer bun știe când să accelereze (la sprint), când să meargă constant (pe drum lung) și când să meargă mai încet, ca să răcească motorul.</div>
+    <div style="background:var(--orange-l)"><b>🐇🐢 Iepurele și broasca țestoasă</b>Vă amintiți povestea? Iepurele a plecat în viteză maximă, a obosit repede și s-a oprit. Țestoasa a mers într-un tempo constant, fără să se oprească, și a ajuns cu bine la linia de sosire. Țestoasa a dozat efortul mai bine decât iepurele!</div>
+  </div>
+  <h3>Reguli de reținut</h3>
+  <ul class="check">
+    <li><b>Măsoară-ți drumul:</b> vezi cât ai de alergat sau de jucat înainte să pleci.</li>
+    <li><b>Pornire moderată:</b> nu pleca primul „ca din pușcă” dacă cursa e lungă.</li>
+    <li><b>Păstrează rezervă:</b> ține puțină energie și pentru ultimii metri – sprintul de final!</li>
+  </ul>
+  <h3>Cum dozezi efortul?</h3>
+  <div class="info">
+    <div><b>🔥 Intensitatea – cât de tare solicităm organismul</b>Menține un efort moderat! Inima nu trebuie să bată la maxim din primele secunde de alergare.</div>
+    <div><b>⏳ Durata – cât timp menținem efortul</b>Mărește timpul treptat: azi 2 minute de efort continuu, data viitoare 3 minute, apoi 4.</div>
+    <div><b>⏸️ Pauzele active – cum frânăm corect</b>Dacă simți că ai obosit, treci la mers ușor până îți reglezi respirația. Nu te oprești brusc din alergare!</div>
+    <div><b>❤️ Semnalele corpului – cum ne automonitorizăm</b>Fii atent la puls și respirație! Dacă poți vorbi cu colegul în timp ce alergi, efortul este dozat corect.</div>
+  </div>
+  <div class="tip"><b>Regula simplă:</b> dacă nu mai poți spune niciun cuvânt și abia respiri, încetinește. Dacă poți cânta în timp ce alergi, poți merge puțin mai repede.</div>
+  <h3>Ce câștigi dacă alergi des?</h3>
+  <ul class="check">
+    <li>Inima devine mai puternică.</li>
+    <li>Plămânii lucrează mai bine.</li>
+    <li>Obosești mai greu la joacă și la sport.</li>
+    <li>Data viitoare vei parcurge mai multe ture.</li>
+  </ul>
+  <div class="tip"><b>De reținut:</b> la rezistență nu câștigă cel care pornește cel mai repede, ci cel care își împarte efortul cel mai bine.</div>`,
+  quiz:[
+    {q:"Ce este rezistența?", o:["Capacitatea de a alerga foarte repede 10 metri","Capacitatea de a face un efort de lungă durată fără să obosești repede","Capacitatea de a ridica greutăți mari"], c:1, e:"Rezistența înseamnă efort de lungă durată. Viteza este altă calitate."},
+    {q:"Cum pornești o alergare de 4 minute?", o:["În sprint, cât mai repede","Într-un tempo moderat, pe care îl pot păstra","Mergând, apoi sprint la final"], c:1, e:"Tempoul moderat și constant te duce cel mai departe în 4 minute."},
+    {q:"Alergi și poți spune câteva cuvinte. Ce înseamnă?", o:["Tempoul tău este potrivit","Alergi prea încet, trebuie sprint","Trebuie să te oprești"], c:0, e:"Este „testul vorbitului”: dacă poți vorbi puțin, tempoul este bun pentru rezistență."},
+    {q:"Ce înseamnă dozarea efortului?", o:["Să alergi cât mai repede de la început","Să îți împarți puterile ca să duci efortul până la capăt","Să te oprești des ca să nu obosești"], c:1, e:"Dozarea efortului înseamnă să alegi tempoul, durata și pauzele astfel încât să termini efortul fără să te epuizezi."}
+  ]
+},
+{
+  id:"puls", icon:"❤️", title:"4. Pulsul",
+  lead:"Pulsul este „bătaia” pe care o simți în artere de fiecare dată când inima se contractă și împinge sângele în corp.",
+  html:`
+  <h3>Ce este pulsul?</h3>
+  <p>La fiecare bătaie, inima împinge cu putere sângele în <b>artere</b>. Peretele arterei se umflă puțin, iar noi simțim asta sub degete ca pe o mică lovitură. <b>Numărul acestor bătăi într-un minut</b> este pulsul și se exprimă în <b>bătăi pe minut</b>.</p>
+  <div class="warn" style="background:var(--blue-l);border-color:var(--blue)">
+    <b>Pulsul se ia de pe artere, nu de pe vene!</b>
+    <ul style="margin:6px 0 0;padding-left:20px">
+      <li><b>Arterele</b> duc sângele <b>de la inimă</b> spre corp, cu presiune mare. De aceea „bat” și le simțim pulsul.</li>
+      <li><b>Venele</b> aduc sângele <b>înapoi spre inimă</b>, lin și cu presiune mică. În ele nu simți pulsul. Venele sunt cele albăstrui, care se văd prin piele.</li>
+    </ul>
+  </div>
+  <h3>Unde îl măsori?</h3>
+  <svg viewBox="0 0 560 380" style="width:100%;max-width:560px;display:block;margin:6px auto" role="img" aria-label="Locurile unde se măsoară pulsul: artera carotidă la gât și artera radială la încheietură">
+    <rect x="0" y="0" width="560" height="380" rx="14" fill="#f8fbf9"/>
+    <!-- trunchi -->
+    <path d="M108 138 Q170 122 232 138 L224 340 L116 340 Z" fill="#bfe3cd" stroke="#8cc3a3" stroke-width="2"/>
+    <!-- brate -->
+    <polyline points="112,145 82,252 72,306" fill="none" stroke="#f3cba8" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+    <polyline points="228,145 258,252 268,306" fill="none" stroke="#f3cba8" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+    <polyline points="110,142 100,176" fill="none" stroke="#bfe3cd" stroke-width="26" stroke-linecap="round"/>
+    <polyline points="230,142 240,176" fill="none" stroke="#bfe3cd" stroke-width="26" stroke-linecap="round"/>
+    <!-- maini (palma în față, degetul mare spre exterior) -->
+    <ellipse cx="68" cy="330" rx="14" ry="22" fill="#f3cba8"/>
+    <ellipse cx="51" cy="318" rx="5" ry="12" fill="#f3cba8" transform="rotate(20 51 318)"/>
+    <ellipse cx="272" cy="330" rx="14" ry="22" fill="#f3cba8"/>
+    <ellipse cx="289" cy="318" rx="5" ry="12" fill="#f3cba8" transform="rotate(-20 289 318)"/>
+    <!-- gat si cap -->
+    <rect x="152" y="96" width="36" height="40" rx="8" fill="#f3cba8"/>
+    <ellipse cx="170" cy="62" rx="36" ry="42" fill="#f3cba8"/>
+    <path d="M136 52 Q170 10 204 52 Q200 30 170 24 Q140 30 136 52 Z" fill="#7a5134"/>
+    <circle cx="157" cy="64" r="3" fill="#3b2a20"/><circle cx="183" cy="64" r="3" fill="#3b2a20"/>
+    <path d="M160 82 Q170 89 180 82" fill="none" stroke="#3b2a20" stroke-width="2" stroke-linecap="round"/>
+    <!-- artere -->
+    <line x1="182" y1="134" x2="182" y2="100" stroke="#d64541" stroke-width="3.5" stroke-linecap="round"/>
+    <line x1="266" y1="255" x2="278" y2="306" stroke="#d64541" stroke-width="3.5" stroke-linecap="round"/>
+    <!-- puncte de masurare cu animatie -->
+    <circle cx="182" cy="114" r="7" fill="none" stroke="#d64541" stroke-width="2"><animate attributeName="r" values="7;17" dur="1s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.9;0" dur="1s" repeatCount="indefinite"/></circle>
+    <circle cx="182" cy="114" r="7" fill="#d64541" stroke="#fff" stroke-width="2"/>
+    <circle cx="276" cy="298" r="7" fill="none" stroke="#d64541" stroke-width="2"><animate attributeName="r" values="7;17" dur="1s" repeatCount="indefinite"/><animate attributeName="opacity" values="0.9;0" dur="1s" repeatCount="indefinite"/></circle>
+    <circle cx="276" cy="298" r="7" fill="#d64541" stroke="#fff" stroke-width="2"/>
+    <!-- etichete -->
+    <line x1="190" y1="114" x2="326" y2="114" stroke="#5d6b63" stroke-width="1.5" stroke-dasharray="4 3"/>
+    <text x="332" y="110" font-size="17" font-weight="700" fill="#1f2a24">1. Artera carotidă</text>
+    <text x="332" y="131" font-size="14" fill="#5d6b63">la gât, lateral,</text>
+    <text x="332" y="149" font-size="14" fill="#5d6b63">sub colțul maxilarului</text>
+    <line x1="284" y1="298" x2="326" y2="298" stroke="#5d6b63" stroke-width="1.5" stroke-dasharray="4 3"/>
+    <text x="332" y="294" font-size="17" font-weight="700" fill="#1f2a24">2. Artera radială</text>
+    <text x="332" y="315" font-size="14" fill="#5d6b63">la încheietura mâinii,</text>
+    <text x="332" y="333" font-size="14" fill="#5d6b63">pe partea degetului mare</text>
+    <!-- legenda -->
+    <line x1="332" y1="200" x2="356" y2="200" stroke="#d64541" stroke-width="3.5" stroke-linecap="round"/>
+    <text x="364" y="205" font-size="14" fill="#1f2a24">arteră (aici simți pulsul)</text>
+    <circle cx="344" cy="226" r="6" fill="#d64541" stroke="#fff" stroke-width="2"/>
+    <text x="364" y="231" font-size="14" fill="#1f2a24">locul unde pui degetele</text>
+  </svg>
+  <div class="info">
+    <div><b>1. La gât – artera carotidă</b>Lateral, în șanțul de lângă „mărul lui Adam”, sub colțul maxilarului. Apeși ușor și <b>doar pe o parte</b>, niciodată pe ambele odată.</div>
+    <div><b>2. La încheietură – artera radială</b>Pe partea interioară a încheieturii, spre degetul mare, cu palma în sus.</div>
+  </div>
+  <h3>Cum îl măsori? Metoda de 10 secunde</h3>
+  <ol class="steps">
+    <li>Pui vârful degetelor <b>arătător și mijlociu</b> pe arteră (nu degetul mare – are și el puls și te încurcă!).</li>
+    <li>Numeri bătăile timp de <b>10 secunde</b>.</li>
+    <li>Înmulțești cu <b>6</b> (pentru că 6 × 10 secunde = 60 de secunde = 1 minut).</li>
+  </ol>
+  <div class="tip"><b>Exemplu:</b> 14 bătăi în 10 secunde → 14 × 6 = <b>84 de bătăi pe minut</b>.</div>
+  <div class="tip"><b>De ce doar 10 secunde?</b> După efort pulsul scade repede. Dacă îl măsori imediat și pe timp scurt, afli cât de tare a lucrat inima în timpul alergării.</div>
+  <h3>Valori orientative la vârsta ta</h3>
+  <div class="info">
+    <div><b>😌 În repaus</b>aproximativ 70–100 de bătăi pe minut</div>
+    <div><b>🏃 După alergare</b>crește mult, poate trece de 150</div>
+    <div><b>⏳ După câteva minute de pauză</b>revine treptat spre valoarea de repaus</div>
+  </div>
+
+  <div class="card" style="background:var(--orange-l);box-shadow:none">
+    <h3 style="margin-top:0">🧪 Exercițiu practic: măsoară-ți pulsul</h3>
+    <p>Găsește pulsul, apasă <b>Start</b> și numără bătăile până se oprește cronometrul.</p>
+    <div class="timer" id="pTimer">10</div>
+    <div class="row" style="justify-content:center">
+      <button class="btn orange" id="pStart">Start 10 secunde</button>
+    </div>
+    <div class="row" style="justify-content:center">
+      <label>Câte bătăi ai numărat? <input type="number" id="pBeats" min="3" max="40"></label>
+      <button class="btn" id="pCalc">Calculează</button>
+    </div>
+    <div id="pOut"></div>
+  </div>`,
+  quiz:[
+    {q:"Cu ce degete măsori pulsul?", o:["Cu degetul mare","Cu arătătorul și mijlociul","Cu toată palma"], c:1, e:"Degetul mare are propriul puls și te poate încurca."},
+    {q:"Ai numărat 15 bătăi în 10 secunde. Cât este pulsul pe minut?", o:["60","90","150"], c:1, e:"15 × 6 = 90 de bătăi pe minut."},
+    {q:"De unde se ia pulsul?", o:["De pe vene","De pe artere","De pe mușchi"], c:1, e:"Arterele duc sângele de la inimă cu presiune mare, de aceea în ele simțim pulsul. În vene sângele curge lin."},
+    {q:"Ce se întâmplă cu pulsul după alergare?", o:["Crește","Scade","Rămâne la fel"], c:0, e:"În efort inima bate mai repede ca să ducă mai mult oxigen la mușchi."}
+  ],
+  after: initPulse
+},
+{
+  id:"igiena", icon:"🧼", title:"5. Igiena și echipamentul",
+  lead:"Un echipament potrivit și câteva obiceiuri de igienă te protejează și te fac să te simți bine.",
+  html:`
+  <h3>Echipamentul corect</h3>
+  <ul class="check">
+    <li>Încălțăminte sport, cu șireturile legate.</li>
+    <li>Haine lejere, care nu strâng: tricou, pantaloni de trening sau scurți.</li>
+    <li>Părul lung prins, ca să nu îți intre în ochi.</li>
+  </ul>
+  <h3>Ce NU purtăm</h3>
+  <ul class="check cross">
+    <li>Bijuterii și ceas – pot răni pe tine sau pe colegi.</li>
+    <li>Încălțăminte cu talpă alunecoasă, sandale, papuci.</li>
+    <li>Blugi sau haine care strâng.</li>
+  </ul>
+  <h3>După efort</h3>
+  <div class="info">
+    <div><b>💧 Bei apă</b>în înghițituri mici, nu multă dintr-odată.</div>
+    <div><b>👕 Schimbi tricoul</b>transpirat, ca să nu răcești și din igienă.</div>
+    <div><b>🧼 Te speli</b>pe mâini și pe față.</div>
+  </div>
+  <div class="tip"><b>De reținut:</b> transpirația e normală la sport. Ce contează e să ai un tricou de schimb.</div>`,
+  quiz:[
+    {q:"Ce încălțăminte porți la ora de educație fizică?", o:["Sandale","Încălțăminte sport cu șireturile legate","Pantofi eleganți"], c:1, e:"Încălțămintea sport ține bine piciorul și nu alunecă."},
+    {q:"Cum bei apă după efort?", o:["Multă, dintr-odată","În înghițituri mici","Nu bei deloc"], c:1, e:"Înghițiturile mici refac lichidele pierdute fără să te încarce."},
+    {q:"De ce schimbi tricoul transpirat după oră?", o:["Ca să nu răcești și din igienă","Ca să fii la modă","Nu e nevoie"], c:0, e:"Tricoul ud te răcește și miroase neplăcut."}
+  ]
+},
+{
+  id:"calire", icon:"🌤️", title:"6. Călirea organismului",
+  lead:"Călirea înseamnă să îți obișnuiești treptat corpul cu aerul, apa și soarele, ca să devină mai rezistent la frig, la căldură și la răceli.",
+  html:`
+  <h3>Ce este călirea?</h3>
+  <p><b>Călirea organismului</b> este un proces prin care corpul se adaptează, puțin câte puțin, la schimbările de temperatură din mediu. Un organism călit se îmbolnăvește mai greu, suportă mai ușor frigul și căldura și se reface mai repede după efort.</p>
+  <h3>Cei trei factori naturali de călire</h3>
+  <div class="info">
+    <div><b>🌬️ Aerul</b>Mișcare și joacă în aer liber în orice anotimp, plimbări, camera aerisită zilnic, somn într-o cameră răcoroasă.</div>
+    <div><b>💧 Apa</b>Spălatul pe față, gât și brațe cu apă la temperatura camerei, apoi tot mai răcoroasă, de la o săptămână la alta. Duș urmat de frecarea pielii cu prosopul.</div>
+    <div><b>☀️ Soarele</b>Expunere scurtă, dimineața sau după-amiaza târziu, cu șapcă și cremă de protecție. Evităm soarele puternic de la prânz (orele 12–16).</div>
+  </div>
+  <h3>Regulile călirii</h3>
+  <ul class="check">
+    <li><b>Treptat:</b> începi ușor și crești puțin câte puțin – nu treci direct la apă rece sau la ore întregi la soare.</li>
+    <li><b>Zilnic:</b> călirea funcționează doar dacă o faci în mod regulat; dacă te oprești, efectul dispare.</li>
+    <li><b>După puterile tale:</b> fiecare corp e diferit; nu te compara cu alții.</li>
+    <li><b>Doar când ești sănătos:</b> dacă ești răcit sau ai febră, faci pauză.</li>
+    <li><b>Cu acordul părinților:</b> vorbește cu ei înainte să începi călirea cu apă.</li>
+  </ul>
+  <h3>Călirea la ora de educație fizică</h3>
+  <div class="info">
+    <div><b>🏃 Ora în aer liber</b>Când nu e foarte frig, facem ora afară: mișcarea în aer răcoros călește corpul.</div>
+    <div><b>🧥 Îmbrăcat „în straturi”</b>Tricou + bluză de trening. După încălzire dai jos bluza, iar la final o pui la loc, ca să nu răcești.</div>
+  </div>
+  <div class="warn"><b>Atenție!</b> Călirea nu înseamnă să înghețe sau să te arzi la soare. Dacă tremuri tare, ai buzele vinete sau pielea se înroșește și te ustură, oprește-te și încălzește-te sau mergi la umbră.</div>
+  <div class="tip"><b>De reținut:</b> aer, apă, soare – folosite <b>treptat, zilnic și cu măsură</b> – fac din corpul tău un „scut” împotriva răcelilor.</div>`,
+  quiz:[
+    {q:"Ce este călirea organismului?", o:["Obișnuirea treptată a corpului cu aerul, apa și soarele","Statul cât mai mult în casă, la căldură","Baia în apă cu gheață din prima zi"], c:0, e:"Călirea face corpul mai rezistent la frig, căldură și răceli, prin obișnuire treptată."},
+    {q:"Care sunt factorii naturali de călire?", o:["Televizorul, telefonul și calculatorul","Aerul, apa și soarele","Dulciurile și sucurile"], c:1, e:"Aerul, apa și soarele sunt cei trei factori naturali de călire."},
+    {q:"Cum începi călirea cu apă?", o:["Direct cu apă cu gheață","Cu apă la temperatura camerei, apoi tot mai răcoroasă, treptat","Doar cu apă fierbinte"], c:1, e:"Regula de bază a călirii este să mergi treptat."}
+  ]
+}
+];
+
+/* Banca de întrebări pentru testul final (se aleg 10 la întâmplare) */
+const finalPool = [
+  {q:"De ce este importantă călirea organismului?", o:["Ne îmbolnăvim mai greu și suportăm mai ușor frigul și căldura","Ca să nu mai facem sport","Ca să stăm mai mult la soare la prânz"], c:0, e:"Un organism călit este mai rezistent la răceli și la schimbările de temperatură."},
+  {q:"Care este o regulă a călirii?", o:["Totul dintr-odată","Treptat și zilnic","O dată pe an"], c:1, e:"Călirea se face treptat și regulat; dacă te oprești, efectul dispare."},
+  {q:"Când e bine să stai la soare?", o:["La prânz, între orele 12 și 16","Dimineața sau după-amiaza târziu, cu șapcă și cremă","Oricând, cât mai mult"], c:1, e:"Soarele puternic de la prânz poate produce arsuri și insolație."},
+  {q:"Ești răcit și ai febră. Continui călirea cu apă rece?", o:["Da, ca să mă vindec mai repede","Nu, fac pauză până mă fac bine","Da, dar cu apă și mai rece"], c:1, e:"Călirea se face doar când ești sănătos."},
+  {q:"Ce faci dacă te doare ceva în timpul orei?", o:["Anunț profesorul","Nu spun nimic","Plec acasă singur"], c:0, e:"Profesorul trebuie să știe ca să te poată ajuta."},
+  {q:"Care obiect NU are voie să rămână la tine în timpul orei?", o:["Tricoul","Ceasul","Încălțămintea sport"], c:1, e:"Ceasul și bijuteriile se scot, pot produce accidentări."},
+  {q:"Ce înseamnă să alergi „în sensul stabilit”?", o:["Fiecare aleargă cum vrea","Toți aleargă în aceeași direcție, cea spusă de profesor","Aleargă doar băieții"], c:1, e:"Așa nu se ciocnește nimeni."},
+  {q:"Încălzirea se face:", o:["La începutul orei, înainte de efortul mare","La sfârșitul orei","Doar iarna"], c:0, e:"Încălzirea pregătește corpul pentru efortul care urmează."},
+  {q:"Cât durează de obicei încălzirea?", o:["30 de secunde","5–10 minute","30 de minute"], c:1, e:"5–10 minute sunt suficiente la ora de educație fizică."},
+  {q:"Care NU este exercițiu de încălzire?", o:["Rotiri de umeri","Genunchii sus","Sprint maxim fără pregătire"], c:2, e:"Sprintul maxim fără pregătire crește riscul de accidentare."},
+  {q:"Rezistența este capacitatea de a face un efort:", o:["foarte scurt și foarte rapid","de lungă durată, fără să obosești repede","doar cu brațele"], c:1, e:"Rezistența = efort de lungă durată."},
+  {q:"Care este cel mai bun mod de a alerga 4 minute?", o:["Sprint, apoi mers","Tempo moderat și constant","Opriri dese"], c:1, e:"Tempoul constant îți împarte bine efortul."},
+  {q:"Ce câștigi dacă alergi des?", o:["Inima și plămânii devin mai puternici","Obosești mai repede","Nimic"], c:0, e:"Alergarea regulată întărește inima și plămânii."},
+  {q:"Unde poți măsura pulsul?", o:["La cot","La încheietura mâinii sau la gât","La genunchi"], c:1, e:"La încheietură (pe partea degetului mare) sau lateral, la gât."},
+  {q:"Ai numărat 14 bătăi în 10 secunde. Pulsul pe minut este:", o:["56","84","24"], c:1, e:"14 × 6 = 84 de bătăi pe minut."},
+  {q:"De ce înmulțim cu 6 numărul de bătăi din 10 secunde?", o:["Pentru că 6 × 10 secunde = 1 minut","Pentru că inima are 6 părți","Așa e regula, fără motiv"], c:0, e:"Un minut are 60 de secunde, adică de 6 ori câte 10."},
+  {q:"Pulsul se simte în:", o:["artere","vene","oase"], c:0, e:"Arterele duc sângele de la inimă cu presiune mare, de aceea „bat”."},
+  {q:"Ce este pulsul?", o:["Bătaia inimii simțită în artere","Respirația rapidă","Transpirația după efort"], c:0, e:"Pulsul este unda produsă în artere de fiecare bătaie a inimii."},
+  {q:"Ce înseamnă dozarea efortului?", o:["Să alergi cât mai tare de la început","Să îți împarți energia inteligent, ca să nu rămâi „fără baterie” pe drum","Să nu faci deloc efort"], c:1, e:"Îți împarți energia de la început până la sfârșit, astfel încât să termini activitatea."},
+  {q:"În povestea iepurelui și a țestoasei, cine a dozat mai bine efortul?", o:["Iepurele, pentru că a plecat cel mai repede","Țestoasa, pentru că a mers într-un tempo constant","Niciunul"], c:1, e:"Țestoasa a păstrat un tempo constant și a ajuns la sosire, iar iepurele a obosit și s-a oprit."},
+  {q:"De ce e bine să păstrezi puțină energie de rezervă?", o:["Pentru sprintul de final, pe ultimii metri","Ca să nu alergi deloc","Ca să te oprești la jumătate"], c:0, e:"Rezerva de energie te ajută să termini cursa puternic."},
+  {q:"Ce înseamnă „măsoară-ți drumul”?", o:["Să măsori pista cu rigla","Să vezi cât ai de alergat sau de jucat înainte să pleci","Să alergi doar pe drumuri scurte"], c:1, e:"Dacă știi cât de lung e efortul, îți poți alege tempoul potrivit."},
+  {q:"Obosești tare în timpul alergării de rezistență. Ce faci?", o:["Mă opresc brusc și mă așez","Trec la mers ușor, apoi reiau alergarea","Sprintez ca să termin mai repede"], c:1, e:"Mersul ușor îți dă timp să îți revii fără să oprești brusc efortul."},
+  {q:"Pulsul în repaus al unui copil de vârsta ta este aproximativ:", o:["20–40","70–100","200–250"], c:1, e:"În repaus, aproximativ 70–100 de bătăi pe minut."},
+  {q:"Ce echipament este potrivit pentru ora de educație fizică?", o:["Blugi și sandale","Haine lejere și încălțăminte sport","Haine elegante"], c:1, e:"Hainele lejere și încălțămintea sport permit mișcarea și protejează."},
+  {q:"După oră, cu tricoul transpirat:", o:["Rămân așa toată ziua","Îl schimb","Îl usuc la calorifer în timp ce îl port"], c:1, e:"Tricoul se schimbă, ca să nu răcești și din igienă."}
+];
+
+/* ===================== STARE ===================== */
+const done = {};        // capitol -> true dacă mini-testul a fost trecut
+let current = "home";
+try{ Object.assign(done, JSON.parse(localStorage.getItem("ef5m1_done")||"{}")); }catch(e){}
+function saveDone(){ try{ localStorage.setItem("ef5m1_done", JSON.stringify(done)); }catch(e){} }
+
+/* ===================== NAVIGARE ===================== */
+function renderNav(){
+  const nav = document.getElementById("nav");
+  let h = `<button data-go="home" class="${current==="home"?"active":""}">🏠 Start</button>`;
+  chapters.forEach(c=>{
+    h += `<button data-go="${c.id}" class="${current===c.id?"active":""} ${done[c.id]?"done":""}">${c.icon} ${c.title.replace(/^\d+\.\s/,"")}</button>`;
+  });
+  h += `<button data-go="final" class="final ${current==="final"?"active":""}">🏆 Test final</button>`;
+  nav.innerHTML = h;
+  nav.querySelectorAll("button").forEach(b=>b.onclick=()=>go(b.dataset.go));
+}
+function go(id){ current=id; renderNav(); render(); window.scrollTo({top:0,behavior:"smooth"}); }
+
+function render(){
+  const main = document.getElementById("main");
+  if(current==="home") return renderHome(main);
+  if(current==="final") return renderFinalStart(main);
+  const ch = chapters.find(c=>c.id===current);
+  const idx = chapters.indexOf(ch);
+  main.innerHTML = `
+    <div class="card">
+      <h2>${ch.icon} ${ch.title}</h2>
+      <p class="lead">${ch.lead}</p>
+      ${ch.html}
+    </div>
+    <div class="card quiz" id="quiz">
+      <h2>✏️ Verifică-te</h2>
+      <p class="lead">Răspunde la ${ch.quiz.length} întrebări. Ai nevoie de cel puțin ${Math.ceil(ch.quiz.length*2/3)} răspunsuri corecte ca să bifezi capitolul.</p>
+      <div id="qbox"></div>
+    </div>
+    <div class="row noprint">
+      ${idx>0?`<button class="btn ghost" id="prev">← Capitolul anterior</button>`:""}
+      ${idx<chapters.length-1?`<button class="btn" id="next">Capitolul următor →</button>`:`<button class="btn orange" id="next">Mergi la testul final 🏆</button>`}
+    </div>`;
+  if(idx>0) document.getElementById("prev").onclick=()=>go(chapters[idx-1].id);
+  document.getElementById("next").onclick=()=>go(idx<chapters.length-1?chapters[idx+1].id:"final");
+  miniQuiz(ch);
+  if(ch.after) ch.after();
+}
+
+function renderHome(main){
+  const nDone = chapters.filter(c=>done[c.id]).length;
+  main.innerHTML = `
+    <div class="card">
+      <h2>Bine ai venit! 👋</h2>
+      <p>Aici înveți lucrurile importante pentru Modulul I la educație fizică. Parcurge cele ${chapters.length} capitole, răspunde la întrebările de la finalul fiecăruia, apoi dă <b>testul final</b>.</p>
+      <div class="progress"><div style="width:${nDone/chapters.length*100}%"></div></div>
+      <p class="lead">Capitole terminate: <b>${nDone} din ${chapters.length}</b></p>
+      <div class="home-grid">
+        ${chapters.map(c=>`<button data-go="${c.id}"><span>${c.icon}</span>${c.title}${done[c.id]?" ✓":""}</button>`).join("")}
+        <button data-go="final" style="border-color:var(--orange)"><span>🏆</span>Test final</button>
+      </div>
+      ${nDone>0?`<div class="row"><button class="btn ghost" id="reset">Șterge progresul</button></div>`:""}
+    </div>`;
+  main.querySelectorAll(".home-grid button").forEach(b=>b.onclick=()=>go(b.dataset.go));
+  const r=document.getElementById("reset");
+  if(r) r.onclick=()=>{ for(const k in done) delete done[k]; saveDone(); go("home"); };
+}
+
+/* ===================== MINI-TEST ===================== */
+function miniQuiz(ch){
+  const box = document.getElementById("qbox");
+  let answered = 0, correct = 0;
+  box.innerHTML = ch.quiz.map((it,i)=>`
+    <div class="q">${i+1}. ${it.q}</div>
+    <div data-q="${i}">${it.o.map((o,j)=>`<button class="opt" data-j="${j}">${o}</button>`).join("")}</div>
+    <div id="ex${i}"></div>`).join("") + `<div class="score" id="mscore"></div>`;
+  box.querySelectorAll("[data-q]").forEach(group=>{
+    const i = +group.dataset.q, it = ch.quiz[i];
+    group.querySelectorAll(".opt").forEach(btn=>{
+      btn.onclick=()=>{
+        const j=+btn.dataset.j;
+        group.querySelectorAll(".opt").forEach(b=>{ b.disabled=true; if(+b.dataset.j===it.c) b.classList.add("ok"); });
+        if(j!==it.c) btn.classList.add("bad"); else correct++;
+        answered++;
+        document.getElementById("ex"+i).innerHTML = `<div class="expl ${j===it.c?"ok":"bad"}">${j===it.c?"✅ Corect! ":"❌ Nu chiar. "}${it.e}</div>`;
+        if(answered===ch.quiz.length){
+          const s=document.getElementById("mscore");
+          if(correct>=Math.ceil(ch.quiz.length*2/3)){ done[ch.id]=true; saveDone(); renderNav();
+            s.innerHTML = `🎉 Ai ${correct} din ${ch.quiz.length}. Capitol terminat!`;
+          } else {
+            s.innerHTML = `Ai ${correct} din ${ch.quiz.length}. Recitește capitolul și încearcă din nou. <button class="btn ghost" id="retry">Încearcă din nou</button>`;
+            document.getElementById("retry").onclick=()=>miniQuiz(ch);
+          }
+        }
+      };
+    });
+  });
+}
+
+/* ===================== PULS (exercițiu practic) ===================== */
+function beep(){
+  try{ const a=new (window.AudioContext||window.webkitAudioContext)(); const o=a.createOscillator(); const g=a.createGain();
+    o.frequency.value=880; o.connect(g); g.connect(a.destination); g.gain.value=.2; o.start(); o.stop(a.currentTime+.4);}catch(e){}
+}
+function initPulse(){
+  let t=null;
+  const tEl=document.getElementById("pTimer"), start=document.getElementById("pStart");
+  start.onclick=()=>{
+    if(t) return;
+    let s=10; tEl.textContent=s; start.disabled=true; beep();
+    t=setInterval(()=>{ s--; tEl.textContent=s;
+      if(s<=0){ clearInterval(t); t=null; tEl.textContent="Stop!"; beep(); start.disabled=false; start.textContent="Încă o dată"; document.getElementById("pBeats").focus(); }
+    },1000);
+  };
+  document.getElementById("pCalc").onclick=()=>{
+    const b=parseInt(document.getElementById("pBeats").value,10);
+    const out=document.getElementById("pOut");
+    if(!b||b<3||b>40){ out.innerHTML=`<div class="result">Scrie un număr de bătăi între 3 și 40.</div>`; return; }
+    const p=b*6;
+    let msg;
+    if(p<60) msg="Valoare mică – poate n-ai numărat toate bătăile. Mai încearcă o dată.";
+    else if(p<=100) msg="Pulsul tău este în zona obișnuită de repaus. 😌";
+    else if(p<=140) msg="Pulsul este crescut – probabil te-ai mișcat sau ești emoționat.";
+    else msg="Puls mare – așa arată după un efort. După câteva minute de pauză va scădea.";
+    out.innerHTML=`<div class="result"><b>${b} × 6 = ${p} bătăi pe minut.</b><br>${msg}</div>`;
+  };
+}
+
+/* ===================== TEST FINAL ===================== */
+let fin = null;
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+
+function renderFinalStart(main){
+  const nDone = chapters.filter(c=>done[c.id]).length;
+  main.innerHTML = `
+    <div class="card">
+      <h2 style="color:var(--orange)">🏆 Test final</h2>
+      <p>Testul are <b>10 întrebări</b> alese la întâmplare din toate capitolele. Fiecare răspuns corect valorează <b>1 punct</b>. Nota este numărul de răspunsuri corecte (minimum 1).</p>
+      ${nDone<chapters.length?`<div class="tip">Ai terminat ${nDone} din ${chapters.length} capitole. Poți da testul oricând, dar e mai ușor dacă le parcurgi pe toate.</div>`:""}
+      <div class="row"><label>Numele tău: <input type="text" id="fname" placeholder="Nume și prenume" style="width:260px"></label><label>Clasa: <input type="text" id="fclass" placeholder="ex. a VI-a B" style="width:140px"></label></div>
+      <div class="row"><button class="btn orange" id="fstart">Începe testul</button></div>
+    </div>`;
+  document.getElementById("fstart").onclick=()=>{
+    const name=document.getElementById("fname").value.trim();
+    if(!name){ document.getElementById("fname").focus(); document.getElementById("fname").style.borderColor="var(--red)"; return; }
+    fin={name, cls:document.getElementById("fclass").value.trim(), qs:shuffle(finalPool).slice(0,10).map(q=>{ const order=shuffle(q.o.map((_,i)=>i)); return {...q, order}; }), i:0, ans:[]};
+    renderFinalQ();
+  };
+}
+
+function renderFinalQ(){
+  const main=document.getElementById("main"), it=fin.qs[fin.i];
+  main.innerHTML = `
+    <div class="card quiz">
+      <h2 style="color:var(--orange)">🏆 Test final – ${escapeHtml(fin.name)}</h2>
+      <div class="progress"><div style="width:${fin.i/fin.qs.length*100}%"></div></div>
+      <p class="lead">Întrebarea ${fin.i+1} din ${fin.qs.length}</p>
+      <div class="q">${it.q}</div>
+      <div id="fopts">${it.order.map(j=>`<button class="opt" data-j="${j}">${it.o[j]}</button>`).join("")}</div>
+      <div class="row"><button class="btn orange" id="fnext" disabled>${fin.i<fin.qs.length-1?"Următoarea →":"Termină testul"}</button></div>
+    </div>`;
+  let sel=null;
+  main.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+    main.querySelectorAll(".opt").forEach(x=>x.classList.remove("sel"));
+    b.classList.add("sel"); sel=+b.dataset.j; document.getElementById("fnext").disabled=false;
+  });
+  document.getElementById("fnext").onclick=()=>{
+    fin.ans[fin.i]=sel; fin.i++;
+    if(fin.i<fin.qs.length) renderFinalQ(); else renderFinalResult();
+  };
+}
+
+function renderFinalResult(){
+  const main=document.getElementById("main");
+  const correct=fin.qs.filter((q,i)=>fin.ans[i]===q.c).length;
+  const nota=Math.max(1,correct);
+  const mesaj = nota>=9?"Excelent! Știi foarte bine noțiunile modulului. 🌟":nota>=7?"Foarte bine! Mai recitește capitolele unde ai greșit. 👍":nota>=5?"Ai trecut. Mai parcurge capitolele și încearcă din nou. 💪":"Mai ai de învățat. Reia capitolele și dă testul din nou. 📚";
+  const d=new Date();
+  main.innerHTML = `
+    <div class="card">
+      <h2 style="color:var(--orange)">🏆 Rezultatul testului final</h2>
+      <p><b>Elev:</b> ${escapeHtml(fin.name)} &nbsp; ${fin.cls?`<b>Clasa:</b> ${escapeHtml(fin.cls)} &nbsp; `:""}<b>Data:</b> ${d.toLocaleDateString("ro-RO")}</p>
+      <p style="text-align:center;margin:10px 0 0">Răspunsuri corecte: <b>${correct} din ${fin.qs.length}</b></p>
+      <div class="big">${nota}</div>
+      <p style="text-align:center"><b>${mesaj}</b></p>
+      <h3>Verifică răspunsurile</h3>
+      <ol class="review">
+        ${fin.qs.map((q,i)=>{ const ok=fin.ans[i]===q.c; return `<li><b>${q.q}</b><br>
+          ${ok?`<span style="color:var(--green)">✅ ${q.o[q.c]}</span>`:`<span style="color:var(--red)">❌ Ai ales: ${q.o[fin.ans[i]]}</span><br><span style="color:var(--green)">Corect: ${q.o[q.c]}</span>`}
+          <div class="expl ${ok?"ok":"bad"}">${q.e}</div></li>`; }).join("")}
+      </ol>
+      <div class="row noprint">
+        <button class="btn orange" id="again">Dă testul din nou</button>
+        <button class="btn ghost" id="print">🖨️ Printează rezultatul</button>
+        <button class="btn ghost" id="home">🏠 Înapoi la început</button>
+      </div>
+    </div>`;
+  document.getElementById("again").onclick=()=>{ const n=fin.name, c=fin.cls; renderFinalStart(main); document.getElementById("fname").value=n; document.getElementById("fclass").value=c; };
+  document.getElementById("print").onclick=()=>window.print();
+  document.getElementById("home").onclick=()=>go("home");
+}
+
+function escapeHtml(s){ return s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+renderNav(); render();
+</script>
+</body>
+</html>
